@@ -1,5 +1,5 @@
 {
-  "name": "@rtvision/esbuild-dynamic-import",
+  "name": "@ts4nfdi/esbuild-dynamic-import",
   "description": "Plugin for transform dynamic imports in esbuild",
   "version": "2.0.1",
   "author": "Kalvens (@kalvenschraut)",
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "fast-glob": "^3.2.11",
+    "pnpm": "^9.0.4",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
@@ -48,5 +49,8 @@
     "dynamic import"
   ],
   "license": "MIT",
-  "repository": "RtVision/esbuild-dynamic-import"
+  "repository": "ts4nfdi/esbuild-dynamic-import",
+  "publishConfig": {
+    "registry": "https://github.com/ts4nfdi/gh-pages-multi.git"
+  }
 }
