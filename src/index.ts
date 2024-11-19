@@ -14,7 +14,7 @@ export default function (config : DynamicImportConfig) : Plugin {
 	if (!Array.isArray(config.transformExtensions) && !config.changeRelativeToAbsolute) {
 		throw new Error('Either transformExtensions needs to be supplied or changeRelativeToAbsolute needs to be true');
 	}
-	const filter = config.filter ?? /\.js$/;
+	const filter = config.filter ?? /^[^.]+\.js$/;
 	const loader = config.loader ?? 'js';
 	return {
 		name: 'rtvision:dynamic-import',
@@ -66,18 +66,15 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 		// let node dynamically import the files. Support browser dynamic import someday?
 		const fileExtension = Path.extname(destinationFile);
 
-    if (fileExtension === '.json') {
-      // Skip any JSON files from processing
-      continue;
-    }
-
 		if (config.changeRelativeToAbsolute && !Path.isAbsolute(destinationFile) && fileExtension === '.js') {
 			const normalizedPath = Path.normalize(`${resolveDir}/${destinationFile}`);
 			fileContents = fileContents.replace(match[1], `\`${normalizedPath}\``);
 		} else if (Array.isArray(config.transformExtensions) && config.transformExtensions.includes(fileExtension) && /^.*\${.*?}.*$/.test(destinationFile)) {
-			importsToReplace.push({ fullImport: match[0], pathString: `\`${destinationFile}\`` });
-			const transformedDestination = destinationFile.replace(/\${.*?}/g, '**/*');
-			globImports.push(transformedDestination);
+			if (fileExtension === '.js') {
+        importsToReplace.push({ fullImport: match[0], pathString: `\`${destinationFile}\`` });
+        const transformedDestination = destinationFile.replace(/\${.*?}/g, '**/*');
+        globImports.push(transformedDestination);
+      }
 		}
 	}
 
@@ -89,7 +86,9 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 		let importFilePaths : Array<string> = [];
 		try {
 			// Flatten array to array of filenames, filter out any rejected promises or duplicate entries
-			importFilePaths = (await Promise.all(filenameImportPromises)).flat();
+			importFilePaths = (await Promise.all(filenameImportPromises)).flat().filter(filePath => {
+        return /\.js$/.test(filePath);
+      });
 		} catch (e) {
 			console.error(e);
 		}
@@ -98,6 +97,7 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 		const jsImportFilePaths = importFilePaths.filter(filePath => {
 			return /\.js$/.test(filePath);
 		});
+
 		importFilePaths = importFilePaths.concat(
 			jsImportFilePaths.map(jsFilePath => {
 				return jsFilePath.replace(/\.js$/, '');
