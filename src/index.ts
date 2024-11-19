@@ -65,6 +65,12 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 		// only change relative files if js file, then we can keep it a normal dynamic import
 		// let node dynamically import the files. Support browser dynamic import someday?
 		const fileExtension = Path.extname(destinationFile);
+
+    if (fileExtension === '.json') {
+      // Skip any JSON files from processing
+      continue;
+    }
+
 		if (config.changeRelativeToAbsolute && !Path.isAbsolute(destinationFile) && fileExtension === '.js') {
 			const normalizedPath = Path.normalize(`${resolveDir}/${destinationFile}`);
 			fileContents = fileContents.replace(match[1], `\`${normalizedPath}\``);
