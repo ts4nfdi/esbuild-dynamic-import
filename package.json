@@ -1,7 +1,7 @@
 {
   "name": "@ts4nfdi/esbuild-dynamic-import",
   "description": "Plugin for transform dynamic imports in esbuild",
-  "version": "2.0.6",
+  "version": "2.0.10",
   "author": "Kalvens (@kalvenschraut)",
   "bugs": "https://github.com/RtVision/esbuild-dynamic-imports/issues",
   "type": "module",

@@ -68,7 +68,7 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 		// let node dynamically import the files. Support browser dynamic import someday?
 		const fileExtension = Path.extname(destinationFile);
 
-		if (config.changeRelativeToAbsolute && !Path.isAbsolute(destinationFile) && fileExtension === '.js' || fileExtension === '.json') {
+		if (config.changeRelativeToAbsolute && !Path.isAbsolute(destinationFile) && fileExtension === '.js' || fileExtension === '.json' ) {
 			const normalizedPath = Path.normalize(`${resolveDir}/${destinationFile}`);
 			fileContents = fileContents.replace(match[1], `\`${normalizedPath}\``);
 		} else if (Array.isArray(config.transformExtensions) && config.transformExtensions.includes(fileExtension) && /^.*\${.*?}.*$/.test(destinationFile)) {
@@ -93,11 +93,16 @@ async function replaceImports (fileContents: string, resolveDir: string, config:
 
 		// For all files ending in '.js', also allow importing without the extension
 		const jsImportFilePaths = importFilePaths.filter(filePath => {
-			if (/(\.js|\.json)$/.test(filePath)) {
+			if (/(\.js)$/.test(filePath)) {
 				return [filePath, filePath.replace(/\.(js|json)$/, '')];
 			}
 			return [filePath];
 		});
+    importFilePaths = importFilePaths.concat(
+			jsImportFilePaths.map(jsFilePath => {
+				return jsFilePath.replace(/\.js$/, '');
+			})
+		);
 
 		if (importFilePaths.length === 0) {
 			return fileContents;
